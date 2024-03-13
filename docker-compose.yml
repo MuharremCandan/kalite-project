@@ -1,0 +1,34 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: postgres:latest
+    container_name: kalite_project_postgres_container
+    environment:
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: kalite-project
+      POSTGRES_USER: kalite-project
+      POSTGRES_PASSWORD: kalite-project
+    networks:
+      - kaliteproject
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/data
+  redis:
+    image: redis:latest
+    container_name: kalite_project_redis_container
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - kaliteproject 
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  kaliteproject:
+    driver: bridge
