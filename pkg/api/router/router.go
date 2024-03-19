@@ -1,6 +1,8 @@
 package router
 
 import (
+	"go-backend-test/pkg/api/handler"
+
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -8,6 +10,7 @@ import (
 )
 
 type router struct {
+	userHandler handler.IUserHandler
 }
 
 func NewRouter() *router {
@@ -23,11 +26,11 @@ func (h *router) SetUpRouter(r *gin.Engine) *gin.Engine {
 	{
 		apiUser := v1.Group("/user")
 		{
-			apiUser.POST("/create", nil)
-			apiUser.GET("/all", nil)
-			apiUser.GET("/:id", nil)
-			apiUser.PUT("/:id", nil)
-			apiUser.DELETE("/:id", nil)
+			apiUser.POST("/create", h.userHandler.CreateUserHandler)
+			//apiUser.GET("/all", h.userHandler.GetUserHandler)
+			apiUser.GET("/:id", h.userHandler.GetUserHandler)
+			apiUser.PUT("/:id", h.userHandler.UpdateUserHandler)
+			apiUser.DELETE("/:id", h.userHandler.DeleteUserHandler)
 		}
 		apiProduct := v1.Group("/product")
 		{
