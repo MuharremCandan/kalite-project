@@ -19,6 +19,9 @@ func TestLoadConfigFromYAML(t *testing.T) {
 
 	// Geçici YAML dosyasına örnek yapılandırmayı yaz
 	yamlData := []byte(`
+httpserver:
+  host: "localhost"
+  port: "8080"
 database:
   host: "localhost"
   port: "5432"
