@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 )
 
+// TODO: edit these tests
 func TestLoadConfigFromYAML(t *testing.T) {
 	// Geçici bir YAML dosyası oluştur
 	tmpfile, err := ioutil.TempFile("", "example")

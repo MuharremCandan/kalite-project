@@ -12,6 +12,8 @@ type IUserRepository interface {
 	Delete(userID uuid.UUID) error
 	Update(user model.User) error
 	GetUser(userID uuid.UUID) (model.User, error)
+	GetUserByUserName(userName string) (model.User, error)
+	GetUserByUserMail(userMail string) (model.User, error)
 }
 type userRepository struct {
 	db *gorm.DB
@@ -19,6 +21,20 @@ type userRepository struct {
 
 func NewUserRepository(db *gorm.DB) IUserRepository {
 	return &userRepository{db: db}
+}
+
+// GetUserByUserMail implements IUserRepository.
+func (u *userRepository) GetUserByUserMail(userMail string) (model.User, error) {
+	var user model.User
+	err := u.db.Where("user_email = ?", userMail).First(&user).Error
+	return user, err
+}
+
+// GetUserByUserName implements IUserRepository.
+func (u *userRepository) GetUserByUserName(userName string) (model.User, error) {
+	var user model.User
+	err := u.db.Where("user_name = ?", userName).First(&user).Error
+	return user, err
 }
 
 // Create implements IUserRepository.

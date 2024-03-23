@@ -12,6 +12,8 @@ type IUserService interface {
 	DeleteService(userID uuid.UUID) error
 	UpdateService(user model.User) error
 	GetUserService(userID uuid.UUID) (model.User, error)
+	GetUserByUserName(userName string) (model.User, error)
+	GetUserByUserMail(userMail string) (model.User, error)
 }
 type userService struct {
 	repo repository.IUserRepository
@@ -19,6 +21,16 @@ type userService struct {
 
 func NewUserService(repo repository.IUserRepository) IUserService {
 	return &userService{repo: repo}
+}
+
+// GetUserByUserMail implements IUserService.
+func (u *userService) GetUserByUserMail(userMail string) (model.User, error) {
+	return u.repo.GetUserByUserMail(userMail)
+}
+
+// GetUserByUserName implements IUserService.
+func (u *userService) GetUserByUserName(userName string) (model.User, error) {
+	return u.repo.GetUserByUserName(userName)
 }
 
 // Create implements IUserService.

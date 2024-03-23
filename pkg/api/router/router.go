@@ -13,8 +13,10 @@ type router struct {
 	userHandler handler.IUserHandler
 }
 
-func NewRouter() *router {
-	return &router{}
+func NewRouter(userHandler handler.IUserHandler) *router {
+	return &router{
+		userHandler: userHandler,
+	}
 
 }
 
@@ -26,8 +28,8 @@ func (h *router) SetUpRouter(r *gin.Engine) *gin.Engine {
 	{
 		apiUser := v1.Group("/user")
 		{
-			apiUser.POST("/create", h.userHandler.CreateUserHandler)
-			//apiUser.GET("/all", h.userHandler.GetUserHandler)
+			apiUser.POST("/sign-up", h.userHandler.Register)
+			apiUser.POST("/login", h.userHandler.Login)
 			apiUser.GET("/:id", h.userHandler.GetUserHandler)
 			apiUser.PUT("/:id", h.userHandler.UpdateUserHandler)
 			apiUser.DELETE("/:id", h.userHandler.DeleteUserHandler)

@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"go-backend-test/pkg/config"
 	"go-backend-test/pkg/model"
 	"go-backend-test/pkg/service"
+	"go-backend-test/pkg/token"
+	"go-backend-test/pkg/utils"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,55 +13,91 @@ import (
 )
 
 type IUserHandler interface {
-	CreateUserHandler(ctx *gin.Context)
 	DeleteUserHandler(ctx *gin.Context)
 	UpdateUserHandler(ctx *gin.Context)
 	GetUserHandler(ctx *gin.Context)
+	Register(ctx *gin.Context)
+	Login(ctx *gin.Context)
 }
 
 type userHandler struct {
 	service service.IUserService
+	maker   token.Maker
+	config  config.Config
 }
 
-func NewUserHandler(service service.IUserService) IUserHandler {
-	return &userHandler{service: service}
+func NewUserHandler(service service.IUserService, maker token.Maker, config config.Config) IUserHandler {
+	return &userHandler{
+		service: service,
+		maker:   maker,
+		config:  config,
+	}
 }
 
-// TODO: Swagger
-// CreateUserHandler implements IUserHandler.
-func (u *userHandler) CreateUserHandler(ctx *gin.Context) {
-	var user model.User
-	if err := ctx.Bind(&user); err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+// Login implements IUserHandler.
+func (u *userHandler) Login(ctx *gin.Context) {
+	var loginRequest model.User
+	if err := ctx.ShouldBindJSON(&loginRequest); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := u.service.CreateService(user); err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+	user, err := u.service.GetUserByUserMail(loginRequest.Email)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
+	}
+	if !utils.VerifyPassword(user.Password, loginRequest.Password) {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
 
+	token, err := u.maker.CreateToken(user.ID, user.Name, u.config.AccessTokenDuration)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
 	}
+
 	ctx.JSON(http.StatusOK, gin.H{
-		"success": "user created successfully",
+		"token": token,
 	})
+
+}
+
+// Register implements IUserHandler.
+func (u *userHandler) Register(ctx *gin.Context) {
+	user := &model.User{}
+
+	if err := ctx.ShouldBindJSON(user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := user.ValidateEmail(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	if err := user.PassHash(); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	user.ID = uuid.New()
+	if err := u.service.CreateService(*user); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{"success": "user created successfully"})
+
 }
 
 // DeleteUserHandler implements IUserHandler.
 func (u *userHandler) DeleteUserHandler(ctx *gin.Context) {
 
-	userIDStr := ctx.Params.ByName("id")
-
-	userID, err := uuid.Parse(userIDStr)
+	payload, err := u.maker.ValidateToken(ctx.GetHeader("Authorization"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-	_, err = u.service.GetUserService(userID)
+
+	_, err = u.service.GetUserService(payload.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -66,7 +105,7 @@ func (u *userHandler) DeleteUserHandler(ctx *gin.Context) {
 		return
 	}
 
-	if err := u.service.DeleteService(userID); err != nil {
+	if err := u.service.DeleteService(payload.ID); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -80,16 +119,12 @@ func (u *userHandler) DeleteUserHandler(ctx *gin.Context) {
 // GetUserHandler implements IUserHandler.
 func (u *userHandler) GetUserHandler(ctx *gin.Context) {
 
-	userIDStr := ctx.Params.ByName("id")
-
-	userID, err := uuid.Parse(userIDStr)
+	payload, err := u.maker.ValidateToken(ctx.GetHeader("Authorization"))
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": err.Error(),
-		})
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
 		return
 	}
-	user, err := u.service.GetUserService(userID)
+	user, err := u.service.GetUserService(payload.ID)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -104,6 +139,18 @@ func (u *userHandler) GetUserHandler(ctx *gin.Context) {
 
 // UpdateUserHandler implements IUserHandler.
 func (u *userHandler) UpdateUserHandler(ctx *gin.Context) {
+	payload, err := u.maker.ValidateToken(ctx.GetHeader("Authorization"))
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
+		return
+	}
+	_, err = u.service.GetUserService(payload.ID)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
 	var user model.User
 
 	if err := ctx.Bind(&user); err != nil {

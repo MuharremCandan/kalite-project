@@ -1,9 +1,13 @@
 package main
 
 import (
+	"go-backend-test/pkg/api/handler"
 	"go-backend-test/pkg/api/router"
 	"go-backend-test/pkg/config"
 	database "go-backend-test/pkg/db"
+	"go-backend-test/pkg/repository"
+	"go-backend-test/pkg/service"
+	"go-backend-test/pkg/token"
 	"log"
 	"net"
 	"net/http"
@@ -17,15 +21,25 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to load config: %v", err)
 	}
-	_, err = database.NewPgDb(config).ConnectDb()
+	db, err := database.NewPgDb(config).ConnectDb()
 	if err != nil {
 		log.Fatalf("failed to connect db: %v", err)
 	}
+
 	gin.ForceConsoleColor()
 
 	r := gin.Default()
 
-	router.NewRouter().SetUpRouter(r)
+	maker, err := token.NewJWTMaker(config.SecretKey)
+	if err != nil {
+		log.Fatalf("failed to create jwt maker: %v", err)
+	}
+
+	//TODO: dependency injection container var ona bi bak
+	userRepository := repository.NewUserRepository(db)
+	userService := service.NewUserService(userRepository)
+	userHandler := handler.NewUserHandler(userService, maker, config)
+	router.NewRouter(userHandler).SetUpRouter(r)
 
 	s := &http.Server{
 		Addr:           net.JoinHostPort(config.HttpServer.Host, config.HttpServer.Port),

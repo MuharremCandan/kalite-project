@@ -1,11 +1,15 @@
 package config
 
 import (
+	"time"
+
 	"github.com/spf13/viper"
 )
 
 type Config struct {
-	HttpServer struct {
+	AccessTokenDuration time.Duration `yaml:"accesstokenduration"`
+	SecretKey           string        `yaml:"secretkey"`
+	HttpServer          struct {
 		Host string `yaml:"host"`
 		Port string `yaml:"port"`
 	} `yaml:"httpserver"`
