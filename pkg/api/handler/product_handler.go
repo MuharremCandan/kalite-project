@@ -14,6 +14,7 @@ type IProductHandler interface {
 	CreateProduct(ctx *gin.Context)
 }
 
+// yorum
 type productHandler struct {
 	service service.IProductService
 }
