@@ -10,11 +10,12 @@ import (
 // User struct represents user information
 type User struct {
 	Base
-	Email    string `json:"email" example:"john.doe@example.com"` // Example email
-	Name     string `json:"name" example:"John Doe"`              // Example name
-	Surname  string `json:"surname" example:"Doe"`                // Example surname
-	Phone    string `json:"phone" example:"+1234567890"`          // Example phone (anonymized)
-	Address  string `json:"address" example:"123 Main Street"`    // Example address
+	UserName string `json:"username" gorm:"idx_name,unique" example:"johndoe"`            // Example user name
+	Email    string `json:"email" gorm:"idx_email,unique" example:"john.doe@example.com"` // Example email
+	Name     string `json:"name" example:"John Doe"`                                      // Example name
+	Surname  string `json:"surname" example:"Doe"`                                        // Example surname
+	Phone    string `json:"phone" example:"+1234567890"`                                  // Example phone (anonymized)
+	Address  string `json:"address" example:"123 Main Street"`                            // Example address
 	Password string `json:"password"`
 }
 
@@ -33,6 +34,10 @@ func (u *User) PassHash() error {
 	}
 	u.Password = pass
 	return nil
+}
+
+func (u *User) ValidateHashPass(hash, pass string) bool {
+	return utils.VerifyPassword(hash, pass)
 }
 
 // UpdatePasswordRequest struct represents the request payload for updating user password.

@@ -1,10 +1,12 @@
 package service
 
 import (
+	"errors"
 	"go-backend-test/pkg/model"
 	"go-backend-test/pkg/repository"
 
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
 type IBrandService interface {
@@ -35,7 +37,14 @@ func (b *brandService) DeleteBrandService(brandID uuid.UUID) error {
 
 // GetBrandService implements IBrandService.
 func (b *brandService) GetBrandService(brandID uuid.UUID) (model.Brand, error) {
-	return b.repo.GetBrand(brandID)
+	brand, err := b.repo.GetBrand(brandID)
+	if err != nil {
+		if err.Error() == gorm.ErrRecordNotFound.Error() {
+			return model.Brand{}, errors.New("brand not found")
+		}
+		return brand, err
+	}
+	return brand, nil
 }
 
 // GetBrandsService implements IBrandService.

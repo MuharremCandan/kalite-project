@@ -11,10 +11,10 @@ import (
 )
 
 type PgDb struct {
-	config config.Config
+	config *config.Config
 }
 
-func NewPgDb(config config.Config) *PgDb {
+func NewPgDb(config *config.Config) *PgDb {
 	return &PgDb{config: config}
 }
 

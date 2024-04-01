@@ -8,7 +8,7 @@ import (
 )
 
 type IProductService interface {
-	CreateProductService(product model.Product) error
+	CreateProductService(product *model.Product) error
 	DeleteProductService(productID uuid.UUID) error
 	UpdateProductService(product model.Product) error
 	GetProductService(productID uuid.UUID) (model.Product, error)
@@ -27,7 +27,7 @@ func NewProductService(repo repository.IProductRepository) IProductService {
 }
 
 // CreateProductService implements IProductService.
-func (p *productService) CreateProductService(product model.Product) error {
+func (p *productService) CreateProductService(product *model.Product) error {
 	return p.repo.Create(product)
 }
 

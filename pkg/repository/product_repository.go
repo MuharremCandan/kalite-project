@@ -8,7 +8,7 @@ import (
 )
 
 type IProductRepository interface {
-	Create(product model.Product) error
+	Create(product *model.Product) error
 	Delete(productID uuid.UUID) error
 	Update(product model.Product) error
 	GetProduct(productID uuid.UUID) (model.Product, error)
@@ -27,7 +27,7 @@ func NewProductRepository(db *gorm.DB) IProductRepository {
 }
 
 // Create implements IProductRepository.
-func (p *productRepository) Create(product model.Product) error {
+func (p *productRepository) Create(product *model.Product) error {
 	return p.db.Create(product).Error
 }
 

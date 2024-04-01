@@ -47,7 +47,7 @@ database:
 	if err != nil {
 		t.Fatal(err)
 	}
-	pgDb := NewPgDb(cfg)
+	pgDb := NewPgDb(&cfg)
 	require.NotNil(t, pgDb)
 
 	db, err := pgDb.ConnectDb()
@@ -154,7 +154,7 @@ database:
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewPgDb(tt.args.config); !reflect.DeepEqual(got, tt.want) {
+			if got := NewPgDb(&tt.args.config); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewPgDb() = %v, want %v", got, tt.want)
 			}
 		})
@@ -176,7 +176,7 @@ func TestPgDb_ConnectDb(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &PgDb{
-				config: tt.fields.config,
+				config: &tt.fields.config,
 			}
 			got, err := d.ConnectDb()
 			if (err != nil) != tt.wantErr {
@@ -224,7 +224,7 @@ func TestPgDb_Ping(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			d := &PgDb{
-				config: tt.fields.config,
+				config: &tt.fields.config,
 			}
 			if err := d.Ping(); (err != nil) != tt.wantErr {
 				t.Errorf("PgDb.Ping() error = %v, wantErr %v", err, tt.wantErr)
