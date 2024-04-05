@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 )
 
+// yorum
 type IUserHandler interface {
 	DeleteUserHandler(ctx *gin.Context)
 	UpdateUserHandler(ctx *gin.Context)
