@@ -8,9 +8,9 @@ import (
 )
 
 type ICategoryService interface {
-	CreateCategoryService(category model.Category) error
+	CreateCategoryService(category *model.Category) error
 	DeleteCategoryService(categoryID uuid.UUID) error
-	UpdateCategoryService(category model.Category) error
+	UpdateCategoryService(category *model.Category) error
 	GetCategoryService(categoryID uuid.UUID) (model.Category, error)
 	GetCategoriesService() ([]model.Category, error)
 }
@@ -24,7 +24,7 @@ func NewCategoryService(repo repository.ICategoryRepository) ICategoryService {
 }
 
 // CreateCategoryService implements ICategoryService.
-func (c *categoryService) CreateCategoryService(category model.Category) error {
+func (c *categoryService) CreateCategoryService(category *model.Category) error {
 	return c.repo.Create(category)
 }
 
@@ -44,6 +44,6 @@ func (c *categoryService) GetCategoryService(categoryID uuid.UUID) (model.Catego
 }
 
 // UpdateCategoryService implements ICategoryService.
-func (c *categoryService) UpdateCategoryService(category model.Category) error {
+func (c *categoryService) UpdateCategoryService(category *model.Category) error {
 	return c.repo.Update(category)
 }

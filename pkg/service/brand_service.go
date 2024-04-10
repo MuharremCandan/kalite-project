@@ -10,9 +10,9 @@ import (
 )
 
 type IBrandService interface {
-	CreateBrandService(brand model.Brand) error
+	CreateBrandService(brand *model.Brand) error
 	DeleteBrandService(brandID uuid.UUID) error
-	UpdateBrandService(brand model.Brand) error
+	UpdateBrandService(brand *model.Brand) error
 	GetBrandService(brandID uuid.UUID) (model.Brand, error)
 	GetBrandsService() ([]model.Brand, error)
 }
@@ -26,7 +26,7 @@ func NewBrandService(repo repository.IBrandRepository) IBrandService {
 }
 
 // CreateBrandService implements IBrandService.
-func (b *brandService) CreateBrandService(brand model.Brand) error {
+func (b *brandService) CreateBrandService(brand *model.Brand) error {
 	return b.repo.Create(brand)
 }
 
@@ -53,6 +53,6 @@ func (b *brandService) GetBrandsService() ([]model.Brand, error) {
 }
 
 // UpdateBrandService implements IBrandService.
-func (b *brandService) UpdateBrandService(brand model.Brand) error {
+func (b *brandService) UpdateBrandService(brand *model.Brand) error {
 	return b.repo.Update(brand)
 }

@@ -8,9 +8,9 @@ import (
 )
 
 type IBrandRepository interface {
-	Create(brand model.Brand) error
+	Create(brand *model.Brand) error
 	Delete(brandID uuid.UUID) error
-	Update(brand model.Brand) error
+	Update(brand *model.Brand) error
 	GetBrand(brandID uuid.UUID) (model.Brand, error)
 	GetBrands() ([]model.Brand, error)
 }
@@ -24,7 +24,7 @@ func NewBrandRepository(db *gorm.DB) IBrandRepository {
 }
 
 // Create implements IBrandRepository.
-func (b *brandRepository) Create(brand model.Brand) error {
+func (b *brandRepository) Create(brand *model.Brand) error {
 	return b.db.Create(brand).Error
 }
 
@@ -48,6 +48,6 @@ func (b *brandRepository) GetBrands() ([]model.Brand, error) {
 }
 
 // Update implements IBrandRepository.
-func (b *brandRepository) Update(brand model.Brand) error {
+func (b *brandRepository) Update(brand *model.Brand) error {
 	return b.db.Save(&brand).Error
 }

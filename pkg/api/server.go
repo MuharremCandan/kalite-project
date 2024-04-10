@@ -75,7 +75,11 @@ func NewServer(config *config.Config) (*Server, error) {
 	brandService := service.NewBrandService(brandRepository)
 	brandHandler := handler.NewBrandHandler(brandService)
 
-	router.NewRouter(userHandler, productHandler, brandHandler, config).SetUpRouter(server.engine)
+	categoryRepository := repository.NewCategoryRepository(db)
+	categoryService := service.NewCategoryService(categoryRepository)
+	categoryHandler := handler.NewCategoryHandler(categoryService)
+
+	router.NewRouter(userHandler, productHandler, brandHandler, categoryHandler, config).SetUpRouter(server.engine)
 
 	//server.engine.Use(middleware.AuthMiddleware(config.SecretKey))
 

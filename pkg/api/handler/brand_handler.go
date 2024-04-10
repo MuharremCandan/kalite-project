@@ -32,7 +32,7 @@ func (h *handler) CreateBrandHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.service.CreateBrandService(brand); err != nil {
+	if err := h.service.CreateBrandService(&brand); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -99,7 +99,7 @@ func (h *handler) UpdateBrandHandler(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	if err := h.service.UpdateBrandService(brand); err != nil {
+	if err := h.service.UpdateBrandService(&brand); err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

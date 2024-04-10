@@ -10,7 +10,7 @@ import (
 type IProductRepository interface {
 	Create(product *model.Product) error
 	Delete(productID uuid.UUID) error
-	Update(product model.Product) error
+	Update(productID uuid.UUID, product model.Product) error
 	GetProduct(productID uuid.UUID) (model.Product, error)
 	GetProducts() ([]model.Product, error)
 	GetProductsByCategory(categoryID uuid.UUID) ([]model.Product, error)
@@ -33,7 +33,7 @@ func (p *productRepository) Create(product *model.Product) error {
 
 // Delete implements IProductRepository.
 func (p *productRepository) Delete(productID uuid.UUID) error {
-	return p.db.Where("id =? ", productID).Delete(productID).Error
+	return p.db.Where("id =? ", productID).Delete(&model.Product{}).Error
 }
 
 // GetProduct implements IProductRepository.
@@ -72,6 +72,6 @@ func (p *productRepository) GetProductsByCategoryAndBrand(categoryID uuid.UUID, 
 }
 
 // Update implements IProductRepository.
-func (p *productRepository) Update(product model.Product) error {
-	return p.db.Save(&product).Error
+func (p *productRepository) Update(productID uuid.UUID, product model.Product) error {
+	return p.db.Save(&product).Where("id =?", productID).Error
 }

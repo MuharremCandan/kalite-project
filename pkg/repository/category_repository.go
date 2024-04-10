@@ -8,9 +8,9 @@ import (
 )
 
 type ICategoryRepository interface {
-	Create(category model.Category) error
+	Create(category *model.Category) error
 	Delete(categoryID uuid.UUID) error
-	Update(category model.Category) error
+	Update(category *model.Category) error
 	GetCategory(categoryID uuid.UUID) (model.Category, error)
 	GetCategories() ([]model.Category, error)
 }
@@ -24,13 +24,13 @@ func NewCategoryRepository(db *gorm.DB) ICategoryRepository {
 }
 
 // Create implements ICategoryRepository.
-func (c *categoryRepository) Create(category model.Category) error {
+func (c *categoryRepository) Create(category *model.Category) error {
 	return c.db.Create(category).Error
 }
 
 // Delete implements ICategoryRepository.
 func (c *categoryRepository) Delete(categoryID uuid.UUID) error {
-	return c.db.Where("id =? ", categoryID).Delete(categoryID).Error
+	return c.db.Where("id = ?", categoryID).Delete(&model.Category{}).Error
 }
 
 // GetCategories implements ICategoryRepository.
@@ -48,6 +48,6 @@ func (c *categoryRepository) GetCategory(categoryID uuid.UUID) (model.Category, 
 }
 
 // Update implements ICategoryRepository.
-func (c *categoryRepository) Update(category model.Category) error {
+func (c *categoryRepository) Update(category *model.Category) error {
 	return c.db.Save(&category).Error
 }

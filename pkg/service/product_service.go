@@ -10,7 +10,7 @@ import (
 type IProductService interface {
 	CreateProductService(product *model.Product) error
 	DeleteProductService(productID uuid.UUID) error
-	UpdateProductService(product model.Product) error
+	UpdateProductService(productID uuid.UUID, product model.Product) error
 	GetProductService(productID uuid.UUID) (model.Product, error)
 	GetProductsService() ([]model.Product, error)
 	GetProductsByCategoryService(categoryID uuid.UUID) ([]model.Product, error)
@@ -62,6 +62,6 @@ func (p *productService) GetProductsService() ([]model.Product, error) {
 }
 
 // UpdateProductService implements IProductService.
-func (p *productService) UpdateProductService(product model.Product) error {
-	return p.repo.Update(product)
+func (p *productService) UpdateProductService(productID uuid.UUID, product model.Product) error {
+	return p.repo.Update(productID, product)
 }

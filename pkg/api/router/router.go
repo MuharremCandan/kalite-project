@@ -12,20 +12,24 @@ import (
 )
 
 type router struct {
-	userHandler    handler.IUserHandler
-	productHandler handler.IProductHandler
-	brandHandler   handler.IBrandHandler
-	cfg            *config.Config
+	userHandler     handler.IUserHandler
+	productHandler  handler.IProductHandler
+	brandHandler    handler.IBrandHandler
+	categoryHandler handler.ICategoryHandler
+	cfg             *config.Config
 }
 
 func NewRouter(userHandler handler.IUserHandler,
 	productHandler handler.IProductHandler,
-	brandhandler handler.IBrandHandler, cfg *config.Config) *router {
+	brandhandler handler.IBrandHandler,
+	categoryHandler handler.ICategoryHandler,
+	cfg *config.Config) *router {
 	return &router{
-		userHandler:    userHandler,
-		productHandler: productHandler,
-		brandHandler:   brandhandler,
-		cfg:            cfg,
+		userHandler:     userHandler,
+		productHandler:  productHandler,
+		brandHandler:    brandhandler,
+		categoryHandler: categoryHandler,
+		cfg:             cfg,
 	}
 
 }
@@ -52,18 +56,21 @@ func (h *router) SetUpRouter(r *gin.Engine) *gin.Engine {
 		apiProduct := v1.Group("/product")
 		{
 			apiProduct.POST("/create", h.productHandler.CreateProduct)
-			apiProduct.GET("/all", nil)
+			apiProduct.GET("/all", h.productHandler.GetProducts)
 			apiProduct.GET("/:id", h.productHandler.GetProduct)
-			apiProduct.PUT("/:id", nil)
-			apiProduct.DELETE("/:id", nil)
+			apiProduct.PUT("/:id", h.productHandler.GetProduct)
+			apiProduct.DELETE("/:id", h.productHandler.DeleteProduct)
+			apiProduct.GET("/brand/:id", h.productHandler.GetProductsByBrand)
+			apiProduct.GET("/category/:id", h.productHandler.GetProductsByCategory)
+			apiProduct.GET("/category/:id/brand/:id", h.productHandler.GetProductsByCategoryAndBrand)
 		}
 		apiCategory := v1.Group("/category")
 		{
-			apiCategory.POST("/create", nil)
-			apiCategory.GET("/all", nil)
-			apiCategory.GET("/:id", nil)
-			apiCategory.PUT("/:id", nil)
-			apiCategory.DELETE("/:id", nil)
+			apiCategory.POST("/create", h.categoryHandler.CreateCategory)
+			apiCategory.GET("/all", h.categoryHandler.GetCategories)
+			apiCategory.GET("/:id", h.categoryHandler.GetCategory)
+			apiCategory.PUT("/:id", h.categoryHandler.UpdateCategory)
+			apiCategory.DELETE("/:id", h.categoryHandler.DeleteCategory)
 		}
 		apiBrand := v1.Group("/brand")
 		{

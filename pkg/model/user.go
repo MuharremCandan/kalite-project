@@ -28,11 +28,11 @@ func (u *User) ValidateEmail() error {
 }
 
 func (u *User) PassHash() error {
-	pass, err := utils.HashPassword(u.Password)
+	var err error
+	u.Password, err = utils.HashPassword(u.Password)
 	if err != nil {
 		return err
 	}
-	u.Password = pass
 	return nil
 }
 

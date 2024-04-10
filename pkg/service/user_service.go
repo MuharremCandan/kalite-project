@@ -17,7 +17,7 @@ type IUserService interface {
 	GetUserService(userID uuid.UUID) (model.User, error)
 	GetUserByUserName(userName string) (model.User, error)
 	GetUserByUserMail(userMail string) (model.User, error)
-	LoginUserService(identifier, password string) (model.User, error) // identifier = username or user email address
+	LoginUserService(identifier, password string) (*model.User, error) // identifier = username or user email address
 	RegisterUserService(user *model.User) error
 }
 type userService struct {
@@ -45,20 +45,20 @@ func (u *userService) RegisterUserService(user *model.User) error {
 }
 
 // LoginUserService implements IUserService.
-func (u *userService) LoginUserService(identifier, password string) (model.User, error) {
+func (u *userService) LoginUserService(identifier, password string) (*model.User, error) {
 	// Kullanıcıyı veritabanında bul
 	user, err := u.repo.GetUserByUsernameOrMail(identifier)
 	if err != nil {
 		if err.Error() == gorm.ErrRecordNotFound.Error() {
-			return model.User{}, errors.New("user not found")
+			return &model.User{}, errors.New("user not found")
 		}
-		return model.User{}, err
+		return &model.User{}, err
 	}
 	// check user password
-	if user.ValidateHashPass(user.Password, password) {
-		return model.User{}, fmt.Errorf("invalid password")
+	if !user.ValidateHashPass(user.Password, password) {
+		return &model.User{}, fmt.Errorf("invalid password")
 	}
-	return *user, nil
+	return user, nil
 }
 
 // GetUserByUserMail implements IUserService.
