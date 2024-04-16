@@ -1,11 +1,15 @@
 # Geliştirme aşaması
 FROM golang:latest as builder
-WORKDIR /app
+WORKDIR /build
 COPY . .
-RUN go mod tidy
-RUN go build -o kaliteproject
+RUN go mod download
+RUN go build -o ./kaliteapi
 
 # Üretim aşaması
-FROM alpine:latest
-COPY --from=builder /app/kaliteproject /usr/local/bin/kaliteproject
-CMD ["kaliteproject"]
+FROM gcr.io/distroless/base-debian12
+
+WORKDIR /app
+COPY --from=builder /build/kaliteapi ./kaliteapi
+COPY config.yaml /app/
+CMD ["/app/kaliteapi"]
+

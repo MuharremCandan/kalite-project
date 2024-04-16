@@ -1,22 +1,31 @@
 version: '3.9'
 
 services:
-  # kalite-project:
-  #   container_name: kalite_project_container
-  #   build: .
-  #   ports:
-  #     - "8080:8080"
-  #   networks:
-  #     - kaliteproject
+  kaliteapi:
+    container_name: kalite_backend
+    build: .
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+    restart: always 
+    environment:
+      POSTGRES_HOST: ${POSTGRES_HOST}
+      POSTGRES_PORT: ${POSTGRES_PORT}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    networks:
+      - kaliteproject
 
   postgres:
     image: postgres:latest
-    container_name: kalite_project_postgres_container
+    container_name: postgres
     environment:
-      POSTGRES_HOST: localhost
-      POSTGRES_DB: kalite-project
-      POSTGRES_USER: kalite-project
-      POSTGRES_PASSWORD: kalite-project
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    restart: always 
     networks:
       - kaliteproject
     ports:
@@ -26,7 +35,7 @@ services:
 
   prometheus:
     image: prom/prometheus:latest
-    container_name: kalite_project_prometheus_container
+    container_name: prometheus
     ports: 
       - "9090:9090"
     volumes:
@@ -34,10 +43,41 @@ services:
       - prometheus_data:/prometheus
     networks:
       - kaliteproject
+  
+  node_exporter:
+    image: quay.io/prometheus/node-exporter:latest
+    container_name: node_exporter
+    command:
+      - '--path.rootfs=/host'
+    pid: host
+    restart: unless-stopped
+    volumes:
+      - '/:/host:ro,rslave' 
+    networks:
+      - kaliteproject
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
+    platform: linux/arm64
+    container_name: cadvisor
+    ports:
+      - "9091:9091"
+    volumes: 
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - "/dev/kmsg:/dev/kmsg"  # Burada devices anahtarını kullanarak cihaz erişim izni tanımlıyoruz
+    networks:
+      - kaliteproject
+
 
   grafana:
     image: grafana/grafana:latest
-    container_name: kalite_project_grafana_container
+    container_name: grafana
     ports:
       - "3000:3000"
     environment:
@@ -45,14 +85,16 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=admin
     volumes:
       - grafana-storage:/var/lib/grafana
-    
+    restart: unless-stopped
     networks:
       - kaliteproject
 
 volumes:
   postgres_data:
   prometheus_data:
+    driver: local
   grafana-storage:
+    driver: local
 
 networks:
   kaliteproject:

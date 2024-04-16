@@ -3,11 +3,11 @@ secretkey: 112345678b0123a5678d012c45678901
 accesstokenduration: 1h
 
 httpserver:
-  host: localhost
-  port: 8080
+  host: kaliteapi
+  port: 8081
 
 database:
-  host: localhost
+  host: postgres
   port: 5432
   user: kalite-project
   pass: kalite-project
