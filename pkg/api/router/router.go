@@ -4,8 +4,10 @@ import (
 	"go-backend-test/pkg/api/handler"
 	"go-backend-test/pkg/api/middleware"
 	"go-backend-test/pkg/config"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/swaggo/swag/example/basic/docs"
@@ -82,5 +84,12 @@ func (h *router) SetUpRouter(r *gin.Engine) *gin.Engine {
 		}
 	}
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	r.GET("/metrics", gin.WrapH(promhttp.Handler()))
+
+	r.GET("/check", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"message": "Check result is OK!",
+		})
+	})
 	return r
 }

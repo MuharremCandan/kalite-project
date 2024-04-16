@@ -4,7 +4,7 @@ accesstokenduration: 1h
 
 httpserver:
   host: localhost
-  port: 9090
+  port: 8080
 
 database:
   host: localhost

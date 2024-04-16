@@ -1,6 +1,14 @@
 version: '3.9'
 
 services:
+  # kalite-project:
+  #   container_name: kalite_project_container
+  #   build: .
+  #   ports:
+  #     - "8080:8080"
+  #   networks:
+  #     - kaliteproject
+
   postgres:
     image: postgres:latest
     container_name: kalite_project_postgres_container
@@ -15,19 +23,36 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/data
-  redis:
-    image: redis:latest
-    container_name: kalite_project_redis_container
-    ports:
-      - "6379:6379"
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: kalite_project_prometheus_container
+    ports: 
+      - "9090:9090"
     volumes:
-      - redis_data:/data
+      - "./prometheus.yml:/etc/prometheus/prometheus.yml"
+      - prometheus_data:/prometheus
     networks:
-      - kaliteproject 
+      - kaliteproject
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: kalite_project_grafana_container
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    
+    networks:
+      - kaliteproject
 
 volumes:
   postgres_data:
-  redis_data:
+  prometheus_data:
+  grafana-storage:
 
 networks:
   kaliteproject:

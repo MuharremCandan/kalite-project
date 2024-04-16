@@ -80,7 +80,6 @@ func NewServer(config *config.Config) (*Server, error) {
 	categoryHandler := handler.NewCategoryHandler(categoryService)
 
 	router.NewRouter(userHandler, productHandler, brandHandler, categoryHandler, config).SetUpRouter(server.engine)
-
 	//server.engine.Use(middleware.AuthMiddleware(config.SecretKey))
 
 	return server, nil
