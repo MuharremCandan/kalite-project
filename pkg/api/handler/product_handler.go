@@ -32,8 +32,13 @@ func NewProductHandler(service service.IProductService) IProductHandler {
 
 // GetProductsByBrand implements IProductHandler.
 func (p *productHandler) GetProductsByBrand(ctx *gin.Context) {
-	var brandID uuid.UUID
-	if err := ctx.ShouldBindJSON(&brandID); err != nil {
+	var brandIDStr string
+	if err := ctx.ShouldBindJSON(&brandIDStr); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	brandID, err := uuid.Parse(brandIDStr)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -47,8 +52,13 @@ func (p *productHandler) GetProductsByBrand(ctx *gin.Context) {
 
 // GetProductsByCategory implements IProductHandler.
 func (p *productHandler) GetProductsByCategory(ctx *gin.Context) {
-	var categoryID uuid.UUID
-	if err := ctx.ShouldBindJSON(&categoryID); err != nil {
+	var categoryIDStr string
+	if err := ctx.ShouldBindJSON(&categoryIDStr); err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	categoryID, err := uuid.Parse(categoryIDStr)
+	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

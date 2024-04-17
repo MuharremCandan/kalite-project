@@ -1,0 +1,20 @@
+---
+secretkey: 112345678b0123a5678d012c45678901
+accesstokenduration: 1h
+
+httpserver:
+  host: kaliteapi
+  port: 8081
+
+database:
+  host: localhost
+  port: 5432
+  user: kalite-project
+  pass: kalite-project
+  name: kalite-project
+
+redis:
+  host: localhost
+  port: 6379
+  pass: kalite-project
+  db: 1

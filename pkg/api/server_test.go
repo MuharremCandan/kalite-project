@@ -1,14 +1,21 @@
 package api
 
-// func TestServer(t *testing.T) {
+import (
+	"go-backend-test/pkg/config"
+	"testing"
 
-// 	config, err := config.LoadConfig("../../")
+	"github.com/stretchr/testify/require"
+)
 
-// 	require.NoError(t, err)
-// 	require.NotEmpty(t, config)
+func TestServer(t *testing.T) {
 
-// 	server, err := NewServer(&config)
+	config, err := config.LoadConfig("./")
 
-// 	require.NoError(t, err)
-// 	require.NotNil(t, server)
-// }
+	require.NoError(t, err)
+	require.NotEmpty(t, config)
+
+	server, err := NewServer(&config)
+
+	require.NoError(t, err)
+	require.NotNil(t, server)
+}
