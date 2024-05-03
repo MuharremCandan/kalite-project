@@ -9,6 +9,8 @@ services:
     depends_on:
       - postgres
     restart: always 
+    # command: 
+    #   - env ATATUS_LICENSE_KEY="lic_apm_5679e401228748b182e607991a2347ec" ATATUS_APP_NAME="Kalite Backend App"
     environment:
       POSTGRES_HOST: ${POSTGRES_HOST}
       POSTGRES_PORT: ${POSTGRES_PORT}
@@ -32,6 +34,20 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/data
+
+  postgres-test:
+    image: postgres:latest
+    container_name: postgres_test
+    environment:
+      POSTGRES_HOST: localhost
+      POSTGRES_DB: kaliteproject
+      POSTGRES_USER: kaliteproject
+      POSTGRES_PASSWORD: kaliteproject
+    restart: always 
+    networks:
+      - kaliteproject
+    ports:
+      - "5433:5433"
 
   prometheus:
     image: prom/prometheus:latest

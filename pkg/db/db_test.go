@@ -27,10 +27,10 @@ httpserver:
   port: "8080"
 database:
   host: "localhost"
-  port: "5432"
-  user: "testuser"
-  pass: "testpass"
-  name: "testdb"
+  port: "5433"
+  user: "kaliteproject"
+  pass: "kaliteproject"
+  name: "kaliteproject"
 `)
 	if _, err := tmpfile.Write(yamlData); err != nil {
 		t.Fatal(err)
@@ -45,6 +45,11 @@ database:
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	if err := yaml.Unmarshal(yamlFile, &cfg); err != nil {
+		t.Fatalf("YAML dosyasından yapılandırma yüklenirken hata oluştu: %v", err)
+	}
+
 	pgDb := NewPgDb(&cfg)
 	require.NotNil(t, pgDb)
 
@@ -53,10 +58,6 @@ database:
 	require.Nil(t, db)
 	require.Error(t, err)
 	require.Error(t, pgDb.Ping())
-
-	if err := yaml.Unmarshal(yamlFile, &cfg); err != nil {
-		t.Fatalf("YAML dosyasından yapılandırma yüklenirken hata oluştu: %v", err)
-	}
 
 	// Yapılandırmayı kontrol et
 	expectedHost := "localhost"
@@ -74,22 +75,22 @@ database:
 		t.Errorf("Beklenen veritabanı hostu: %s, alınan: %s", expectedDBHost, cfg.Database.Host)
 	}
 
-	expectedDBPort := "5432"
+	expectedDBPort := "5433"
 	if cfg.Database.Port != expectedDBPort {
 		t.Errorf("Beklenen veritabanı portu: %s, alınan: %s", expectedDBPort, cfg.Database.Port)
 	}
 
-	expectedDBUser := "testuser"
+	expectedDBUser := "kaliteproject"
 	if cfg.Database.User != expectedDBUser {
 		t.Errorf("Beklenen veritabanı kullanıcısı: %s, alınan: %s", expectedDBUser, cfg.Database.User)
 	}
 
-	expectedDBPass := "testpass"
+	expectedDBPass := "kaliteproject"
 	if cfg.Database.Pass != expectedDBPass {
 		t.Errorf("Beklenen veritabanı parolası: %s, alınan: %s", expectedDBPass, cfg.Database.Pass)
 	}
 
-	expectedDBName := "testdb"
+	expectedDBName := "kaliteproject"
 	if cfg.Database.Name != expectedDBName {
 		t.Errorf("Beklenen veritabanı adı: %s, alınan: %s", expectedDBName, cfg.Database.Name)
 	}

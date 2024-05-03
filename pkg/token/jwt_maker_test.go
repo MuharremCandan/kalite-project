@@ -12,7 +12,7 @@ import (
 
 // 87.9%
 func TestJWTMaker(t *testing.T) {
-	keySize := 32
+	keySize := 33
 	maker_wrong, err := NewJWTMaker(utils.RandomString(1))
 	require.Error(t, err)
 	require.Nil(t, maker_wrong)

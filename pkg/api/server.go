@@ -15,6 +15,8 @@ import (
 	"net/http"
 	"time"
 
+	"go.atatus.com/agent/module/atgin"
+
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 )
@@ -81,7 +83,7 @@ func NewServer(config *config.Config) (*Server, error) {
 
 	router.NewRouter(userHandler, productHandler, brandHandler, categoryHandler, config).SetUpRouter(server.engine)
 	//server.engine.Use(middleware.AuthMiddleware(config.SecretKey))
-
+	server.engine.Use(atgin.Middleware(server.engine))
 	return server, nil
 }
 
