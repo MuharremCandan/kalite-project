@@ -8,7 +8,7 @@ services:
       - "8081:8081"
     depends_on:
       - postgres
-    restart: always 
+    restart: always   
     # command: 
     #   - env ATATUS_LICENSE_KEY="lic_apm_5679e401228748b182e607991a2347ec" ATATUS_APP_NAME="Kalite Backend App"
     environment:
@@ -22,7 +22,7 @@ services:
 
   postgres:
     image: postgres:latest
-    container_name: postgres
+    container_name: go-postgresql
     environment:
       POSTGRES_DB: ${POSTGRES_DB}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -31,23 +31,9 @@ services:
     networks:
       - kaliteproject
     ports:
-      - "5432:5432"
+      - "5433:5433"
     volumes:
       - postgres_data:/data
-
-  postgres-test:
-    image: postgres:latest
-    container_name: postgres_test
-    environment:
-      POSTGRES_HOST: localhost
-      POSTGRES_DB: kaliteproject
-      POSTGRES_USER: kaliteproject
-      POSTGRES_PASSWORD: kaliteproject
-    restart: always 
-    networks:
-      - kaliteproject
-    ports:
-      - "5433:5433"
 
   prometheus:
     image: prom/prometheus:latest
@@ -104,12 +90,48 @@ services:
     restart: unless-stopped
     networks:
       - kaliteproject
+  
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.15.2-arm64
+    container_name: elasticsearch
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    ports:
+      - "9200:9200"
+    volumes:
+      - esdata:/usr/share/elasticsearch/data
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.15.2-arm64
+    container_name: logstash
+    ports:
+      - "5001:5000"
+    volumes:
+      - ./logstash/pipelines:/usr/share/logstash/pipeline
+    environment:
+      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.15.2-arm64
+    container_name: kibana
+    ports:
+      - "5601:5601"
+    environment:
+      ELASTICSEARCH_URL: http://elasticsearch:9200
 
 volumes:
   postgres_data:
   prometheus_data:
     driver: local
   grafana-storage:
+    driver: local
+  esdata:
     driver: local
 
 networks:

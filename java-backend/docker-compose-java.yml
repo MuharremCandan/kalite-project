@@ -1,0 +1,30 @@
+version: "3"
+
+services:
+  postgres:
+    image: postgres
+    container_name: java-postgresql
+    environment:
+      POSTGRES_DB: muho
+      POSTGRES_USER: 123456
+      POSTGRES_PASSWORD: 123456
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  springboot-app:
+    image: sibacode/muhobackend
+    # platform: linux/arm64
+    container_name: java-backend
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/muho
+      SPRING_DATASOURCE_USERNAME: 123456
+      SPRING_DATASOURCE_PASSWORD: 123456
+    depends_on:
+      - postgres
+    ports:
+      - "8080:8080"
+
+volumes:
+  postgres_data:

@@ -21,6 +21,10 @@ type Config struct {
 		Pass string `yaml:"pass"`
 		Name string `yaml:"name"`
 	} `yaml:"database"`
+
+	Elastic struct {
+		Url string `yaml:"url"`
+	} `yaml:"elastic"`
 }
 
 // LoadConfig reads configuration from file or environment variables.
