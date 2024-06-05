@@ -17,7 +17,9 @@ import (
 
 	"go.atatus.com/agent/module/atgin"
 
+	logrustash "github.com/bshuster-repo/logrus-logstash-hook"
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 )
 
@@ -48,30 +50,32 @@ func NewServer(config *config.Config) (*Server, error) {
 		tokenMaker: &maker,
 		engine:     gin.New(),
 	}
-	// container := dig.New()
 
-	// container.Provide(repository.NewUserRepository(db))
-	// container.Provide(service.NewUserService(container))
-	// container.Provide(handler.NewUserHandler(container, maker, config))
-	// container.Provide(repository.NewBrandRepository(db))
-	// container.Provide(service.NewBrandService(container))
-	// container.Provide(handler.NewBrandHandler(container))
-	// container.Provide(handler.NewProductHandler(container))
+	// logstashHost := os.Getenv("LOGSTASH_HOST")
+	// logstashPort := os.Getenv("LOGSTASH_PORT")
+	// address := net.JoinHostPort(logstashHost, logstashPort)
+	log := logrus.New()
+	conn, err := net.Dial("tcp", "localhost:5044")
+	if err != nil {
+		log.Fatal(err)
+	}
+	hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{
+		"type": "go-log",
+	}))
+	log.Hooks.Add(hook)
 
-	// if err := container.Invoke(container); err != nil {
-	// 	return nil, fmt.Errorf("could not invoke container: %w", err)
-	// }
+	log.Info("Hello, Logstash!")
 
 	gin.ForceConsoleColor()
 
 	//TODO: dependency injection container var ona bi bak
 	userRepository := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepository)
-	userHandler := handler.NewUserHandler(userService, maker, config)
+	userHandler := handler.NewUserHandler(userService, maker, config, log)
 
 	productRepository := repository.NewProductRepository(db)
 	prductService := service.NewProductService(productRepository)
-	productHandler := handler.NewProductHandler(prductService)
+	productHandler := handler.NewProductHandler(prductService, log)
 
 	brandRepository := repository.NewBrandRepository(db)
 	brandService := service.NewBrandService(brandRepository)

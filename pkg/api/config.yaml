@@ -7,7 +7,7 @@ httpserver:
   port: 8083
 
 database:
-  host: localhost
+  host: kaliteproject_db
   port: 5432
   user: kalite-project
   pass: kalite-project

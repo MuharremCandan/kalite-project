@@ -1,24 +1,29 @@
-version: '3.9'
+version: "3"
 
 services:
-  kaliteapi:
-    container_name: kalite_backend
-    build: .
-    ports:
-      - "8081:8081"
-    depends_on:
-      - postgres
-    restart: always   
-    # command: 
-    #   - env ATATUS_LICENSE_KEY="lic_apm_5679e401228748b182e607991a2347ec" ATATUS_APP_NAME="Kalite Backend App"
-    environment:
-      POSTGRES_HOST: ${POSTGRES_HOST}
-      POSTGRES_PORT: ${POSTGRES_PORT}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
-    networks:
-      - kaliteproject
+  # kalite_backend:
+  #   container_name: kalite_backend
+  #   image: kalite_backend
+  #   build:
+  #     context: .
+  #     dockerfile: ./Dockerfile
+  #   ports:
+  #     - "8081:8081"
+  #   depends_on:
+  #     - kaliteproject_db
+  #   restart: always   
+  #   # command: 
+  #   #   - env ATATUS_LICENSE_KEY="lic_apm_5679e401228748b182e607991a2347ec" ATATUS_APP_NAME="Kalite Backend App"
+  #   environment:
+  #     POSTGRES_HOST: ${POSTGRES_HOST}
+  #     POSTGRES_PORT: ${POSTGRES_PORT}
+  #     POSTGRES_USER: ${POSTGRES_USER}
+  #     POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+  #     POSTGRES_DB: ${POSTGRES_DB}
+  #     LOGSTASH_HOST: "kaliteproject_logstash"
+  #     LOGSTASH_PORT: "5044"
+  #   networks:
+  #     - kaliteproject
 
   postgres:
     image: postgres:latest
@@ -31,7 +36,7 @@ services:
     networks:
       - kaliteproject
     ports:
-      - "5433:5433"
+      - "5432:5432"
     volumes:
       - postgres_data:/data
 
@@ -111,9 +116,10 @@ services:
     image: docker.elastic.co/logstash/logstash:7.15.2-arm64
     container_name: logstash
     ports:
-      - "5001:5000"
+      - "5044:5044"
     volumes:
-      - ./logstash/pipelines:/usr/share/logstash/pipeline
+      - ./logstash/pipelines/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+      - ./logstash/pipelines/GeoLite2-ASN_20240517:/usr/share/logstash/GeoLite2-ASN_20240517
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
 
@@ -122,6 +128,8 @@ services:
     container_name: kibana
     ports:
       - "5601:5601"
+    volumes:
+      - kibana_data:/usr/share/kibana/data
     environment:
       ELASTICSEARCH_URL: http://elasticsearch:9200
 
@@ -133,6 +141,7 @@ volumes:
     driver: local
   esdata:
     driver: local
+  kibana_data:
 
 networks:
   kaliteproject:
